@@ -1,0 +1,18 @@
+{
+    "name": "quickserver",
+    "version": "0.0.2",
+    "author": "Jose Toscano <tuertilindo@gmail.com>",
+    "keywords": [
+        "express",
+        "node"
+    ],
+    "dependencies": {
+        "express": "^4.18.2",
+        "handlebars": "^4.7.7",
+        "jsonwebtoken": "^9.0.0",
+        "mongodb": "^4.12.1",
+        "mongoose": "^6.8.0",
+        "mongoose-bcrypt": "^1.10.0",
+        "mongoose-paginate": "^5.0.3"
+    }
+}
