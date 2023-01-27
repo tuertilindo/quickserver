@@ -1,6 +1,14 @@
 const cnn = require("../database/cnn")
 const vlt = require("../helper/validateTemplate")
 const builder = require("../models/schemaBuilder");
+const { ObjectId } = require('mongodb');
+const extractId = (req) => {
+    var id = req.params && req.params.id ? req.params.id : 0
+    if (!ObjectId.isValid(id)) {
+        throw Error("Provided Id is not valid")
+    }
+    return id
+}
 module.exports = function (app, name, template) {
     const mod = builder(template.model)
     const cnnschema = cnn(db => db.model(name, mod))
@@ -24,48 +32,44 @@ module.exports = function (app, name, template) {
 
     app.get(path + "/:id", async function (request, res) {
         try {
-            const req = vlt(template, request)
-            var id = req.params && req.params.id ? req.params.id : 0
-            if (id == 0) {
-                throw Error("No id provided")
-            }
-            return await cnnschema.getEntity({ _id: id }).then(entity =>
-                entity ? res.json(entity) : Promise.reject("Entity not found")
-            )
+            return res.json(await cnnschema.getEntity({ _id: extractId(vlt(template, request)) }))
         } catch (err) {
             return res.status(400).send({ message: err.message })
         }
     })
 
     app.put(path + "/:id", async function (request, res) {
-        const req = vlt(template, request)
-        var id = req.params && req.params.id ? req.params.id : 0
-        if (id == 0) return res.status(400).send({ message: "No entity found" })
-        delete req.body.id
-        req.body._id = id
-        return await cnnschema.saveEntity(req.body).then(entity =>
-            entity ? res.json(entity) : Promise.reject("Entity not found"))
-            .catch(err => res.status(400).send({ message: err }))
+        try {
+            const req = vlt(template, request)
+            req.body._id = extractId(req)
+            return res.json(await cnnschema.saveEntity(req.body))
+        } catch (err) {
+            return res.status(400).send({ message: err.message })
+        }
+
     })
 
     app.delete(path + "/:id", async function (request, res) {
-        const req = vlt(template, request)
-        var id = req.params && req.params.id ? req.params.id : 0
-        if (id == 0) return res.status(400).send({ message: "No entity found" })
+        try {
+            const req = vlt(template, request)
+            var id = req.params && req.params.id ? req.params.id : 0
+            if (id == 0) throw Error("Item not found")
+            await cnnschema.deleteEntity(id)
+            return res.json({ id })
+        } catch (err) {
+            return res.status(400).send({ message: err.message })
+        }
 
-
-        return await cnnschema.deleteEntity(id).then(() => res.json({ id }))
-            .catch(err => {
-                console.log(err)
-                return res.status(400).send({ message: err })
-            })
     })
 
     app.post(path + "/", async function (request, res) {
-        const req = vlt(template, request)
-        if (req.body._id) return res.status(400).send({ message: "Entity already created" })
-        return await cnnschema.saveEntity(req.body).then(entity =>
-            entity ? res.json(entity) : Promise.reject("Entity not found"))
-            .catch(err => res.status(400).send({ message: err }))
+        try {
+            const req = vlt(template, request)
+            if (req.body._id) throw Error("Entity already created")
+            res.json(await cnnschema.saveEntity(req.body))
+        } catch (err) {
+            return res.status(400).send({ message: err.message })
+        }
+
     })
 }

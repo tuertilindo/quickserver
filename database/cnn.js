@@ -3,7 +3,9 @@ module.exports = function (schema) {
     return {
         getEntity: async function (filter) {
             const ca = schema(db)
-            return ca.findOne(filter).exec()
+            var item = await ca.findOne(filter)
+            if (item == null) throw Error("Item not found")
+            return item
         },
         saveEntity: async function (entity) {
             const ca = schema(db)
@@ -12,18 +14,21 @@ module.exports = function (schema) {
                 return ca.create(entity).then(person => person.save())
             }
             var query = { '_id': id }
-            return ca.findOneAndUpdate(query, entity, { upsert: true }, function (err, doc) {
-                if (err) return Promise.reject(err)
-                return Promise.resolve(doc)
-            })
+            delete entity._id
+            delete entity.id
+            var result = await ca.findOneAndUpdate(query, entity, { upsert: true })
+            if (result == null) {
+                throw new Error("No item was changed")
+            }
+            return result
         },
         deleteEntity: async function (id) {
             const ca = schema(db)
             var query = { '_id': id }
-            return ca.deleteOne(query, function (err, doc) {
-                if (err) return Promise.reject(err)
-                return Promise.resolve()
-            })
+            var deleted = await ca.deleteOne(query)
+            if (!deleted.acknowledged || deleted.deletedCount == 0) {
+                throw new Error("No item was deleted")
+            }
         },
         getEntities: async function (filter, options = null) {
             const ca = schema(db)
