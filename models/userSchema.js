@@ -3,7 +3,10 @@ var mongoose = require("mongoose"),
 
 var mongoosePaginate = require('mongoose-paginate')
 var userSchema = new Schema({
-	name: { type: String },
+	name: {
+		type: String,
+		required: true
+	},
 	email: {
 		type: String,
 		required: true

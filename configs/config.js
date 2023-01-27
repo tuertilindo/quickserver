@@ -1,4 +1,4 @@
-module.exports = (app, cfg) => {
+module.exports = (app) => {
     // CORS
     app.use((req, res, next) => {
         res.header('Access-Control-Allow-Origin', '*')
@@ -15,7 +15,7 @@ module.exports = (app, cfg) => {
     bodyParser = require("body-parser")
     app.use(bodyParser.urlencoded({ extended: true }))
     app.use(bodyParser.json())
-
+    require("../routes/auth")(app)
     //set Custom CRUD
-    require("./loadRoutes")(app, cfg?.modelsPath)
+    require("./loadRoutes")(app)
 } 

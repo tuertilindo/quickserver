@@ -12,7 +12,7 @@ exports.init = (params, load) => {
     app.set('privateKey', pk)
 
     require("./configs/config")(app)
-    routes = require("./routes/auth")(app)
+
 
     if (load) load(app)
     const port = params.port || 8080

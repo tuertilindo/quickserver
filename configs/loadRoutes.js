@@ -4,10 +4,9 @@ const { resolve } = require('path');
 
 const folders = require("../helper/loadFolder")
 
-module.exports = (app, path) => {
-    if (process.env.MODELS_PATH || path) {
-        const absolutePath = resolve(process.env.MODELS_PATH || path);
-        folders(absolutePath, (template, file) => {
+module.exports = (app) => {
+    if (process.env.MODELS_PATH) {
+        folders(resolve(process.env.MODELS_PATH), (template, file) => {
             var name = file.substring(0, file.indexOf('.'))
             crud(app, name, template)
         });

@@ -35,6 +35,7 @@ module.exports = function (app) {
                 return us.create({
                     email: req.body.email,
                     role: "Guest",
+                    name: req.body.name || 'Unknow',
                     password: req.body.password
                 }).then(newuser => newuser.save()
                     .then(saveduser => {
