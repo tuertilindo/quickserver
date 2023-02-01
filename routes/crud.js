@@ -10,7 +10,7 @@ const extractId = (req) => {
     return id
 }
 module.exports = function (app, name, template) {
-    const mod = builder(template.model)
+    const mod = builder(template)
     const cnnschema = cnn(db => db.model(name, mod))
     const path = "/" + name
 
@@ -20,10 +20,10 @@ module.exports = function (app, name, template) {
             const { filter = "{}", sort, range = "[0, 9]" } = req.query
             const [a, b] = JSON.parse(range)
             const paginate = a + b > 0 ? { offset: a, limit: b } : null
-            return await cnnschema.getEntities(JSON.parse(filter), paginate).then(list => {
-                res.set('Content-Range', path.slice(1) + ' ' + a + "-" + b + "/" + list.total)
-                return res.json(list.docs)
-            })
+            const query = { ...JSON.parse(filter), ...(request.filter || {}) }
+            var result = await cnnschema.getEntities(query, paginate)
+            res.set('Content-Range', path.slice(1) + ' ' + a + "-" + b + "/" + result.total)
+            return res.json(result)
         } catch (err) {
             return res.status(400).send({ message: err.message })
         }
