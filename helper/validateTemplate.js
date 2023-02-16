@@ -1,19 +1,19 @@
-module.exports = (template, request) => {
+module.exports = async (template, request) => {
     if (request.method == "GET") {
         if (request.params.id && template.onGet) {
-            return template.onGet(request)
+            return await template.onGet(request)
         } else if (template.onGetAll) {
-            return template.onGetAll(request)
+            return await template.onGetAll(request)
         }
     }
     if (request.method == "POST" && template.onCreate) {
-        return template.onCreate(request)
+        return await template.onCreate(request)
     }
     if (request.method == "PUT" && template.onEdit) {
-        return template.onEdit(request)
+        return await template.onEdit(request)
     }
     if (request.method == "DELETE" && template.onDelete) {
-        return template.onDelete(request)
+        return await template.onDelete(request)
     }
     return request
 }
