@@ -40,6 +40,14 @@ module.exports = function (schema) {
                 throw new Error(ca.modelName + " was not deleted")
             }
         },
+        deleteEntities: async function (query) {
+            const ca = schema(db)
+            var deleted = await ca.deleteMany(query)
+            if (!deleted.acknowledged || deleted.deletedCount == 0) {
+                throw new Error(ca.modelName + "s were not deleted")
+            }
+            return deleted
+        },
         getEntities: async function (filter, options = null) {
             const ca = schema(db)
             return options ? ca.paginate(filter, options) : ca.find(filter, fields, range)

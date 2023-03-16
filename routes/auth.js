@@ -1,4 +1,5 @@
 var users = require("../models/user.js")
+var merge = require("../helper/merge.js")
 const db = require("../database/mongo")
 const jwt = require('jsonwebtoken')
 module.exports = function (app) {
@@ -54,6 +55,14 @@ module.exports = function (app) {
         })
 
     }
+    updateMe = function (req, res) {
+        const us = users(db)
+        delete req.body._id
+        delete req.body.email
+        delete req.body.password
+        const user = merge(req.user, req.body)
+        us.updateOne({ _id: user.id }, user).then(u => res.send(user))
+    }
 
     profile = (req, res) => {
         return res.send(req.user)
@@ -88,6 +97,7 @@ module.exports = function (app) {
     })
     app.post("/login", authenticate)
     app.post("/register", register)
+    app.post("/updateme", updateMe)
     app.get("/profile", profile)
     // Middware
 

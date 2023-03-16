@@ -1,17 +1,19 @@
 const combineObject = function (o1, o2) {
     if (o1 == null) return o2
+    if (o2 == null) return o1
     for (var i in o1) {
         if (o2[i] == null) continue
-        if (typeof o1[i] == "object" && typeof o2[i] == "object") {
-            o1[i] = combineObject(o1[i], label)
-        } if (typeof o1[i] == "number" && typeof o2[i] == "number") {
-            o1[i] = o1[i] + o2[i]
-        } else if (Array.isArray(o1[i])) {
+        if (Array.isArray(o1[i])) {
             if (Array.isArray(o2[i])) {
                 o1[i].concat(o2[i])
             } else {
                 o1[i].push(o2[i])
             }
+        }
+        if (typeof o1[i] == "number" && typeof o2[i] == "number") {
+            o1[i] = o1[i] + o2[i]
+        } else if (typeof o1[i] == "object" && typeof o2[i] == "object") {
+            o1[i] = combineObject(o1[i], o2[i])
         } else {
             o1[i] = o2[i]
         }

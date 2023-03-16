@@ -33,7 +33,7 @@ var userSchema = new Schema({
 		}
 	}],
 	role: { type: String, enum: ["Admin", "Guest"] },
-})
+}, { strict: false, versionKey: false })
 // Add { password: String } to schema
 userSchema.plugin(require("mongoose-bcrypt"))
 userSchema.plugin(mongoosePaginate)
