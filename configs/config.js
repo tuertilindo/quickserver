@@ -1,4 +1,4 @@
-module.exports = (app) => {
+module.exports = (app, loadAuth = false) => {
     // CORS
     app.use((req, res, next) => {
         res.header('Access-Control-Allow-Origin', '*')
@@ -15,7 +15,7 @@ module.exports = (app) => {
     bodyParser = require("body-parser")
     app.use(bodyParser.urlencoded({ extended: true }))
     app.use(bodyParser.json())
-    if (process.env.DATABASE_URL){
+    if (!loadAuth){
         require("../routes/auth")(app)
         //set Custom CRUD
         require("./loadRoutes")(app)

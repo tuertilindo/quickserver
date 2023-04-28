@@ -11,7 +11,7 @@ exports.init = (params, load) => {
     if (!pk) throw Error("The Private key is not set, please add it to enviorement: PRIVATE_KEY ")
     app.set('privateKey', pk)
 
-    require("./configs/config")(app)
+    require("./configs/config")(app, params.loadAuth)
 
 
     if (load) load(app)
