@@ -27,7 +27,8 @@ module.exports = function (app, name, template) {
                 result = await template.afterGetAll(request, result)
             }
             res.set('Content-Range', path.slice(1) + ' ' + a + "-" + b + "/" + result.total)
-            return res.json(result)
+            const rest = res.json(result)
+            return rest
         } catch (err) {
             return res.status(400).send({ message: err.message })
         }
@@ -58,8 +59,8 @@ module.exports = function (app, name, template) {
                 request = await template.onEdit(request)
             }
 
-            req.body._id = extractId(request)
-            var item = await request.cnn[name].saveEntity(req.body)
+            request.body._id = extractId(request)
+            var item = await request.cnn[name].saveEntity(request.body)
 
             //validate result
             if (template.afterEdit != null) {

@@ -2,9 +2,10 @@ var users = require("../models/user.js")
 var merge = require("../helper/merge.js")
 const db = require("../database/mongo")
 const jwt = require('jsonwebtoken')
-module.exports = function (app) {
+module.exports = function (app, params) {
+    const us = users(db, params.userSchema)
     authenticate = async function (req, res) {
-        const us = users(db)
+
         us.findOne({
             email: req.body.email,
         }).exec().then(user => {
@@ -28,16 +29,14 @@ module.exports = function (app) {
     }
 
     register = function (req, res) {
-        const us = users(db)
         us.findOne({
             email: req.body.email,
         }).exec().then(user => {
             if (!user) {
                 return us.create({
-                    email: req.body.email,
+                    ...req.body,
                     role: "Guest",
-                    name: req.body.name || 'Unknow',
-                    password: req.body.password
+                    name: req.body.name || 'Unknow'
                 }).then(newuser => newuser.save()
                     .then(saveduser => {
 
@@ -56,7 +55,6 @@ module.exports = function (app) {
 
     }
     updateMe = function (req, res) {
-        const us = users(db)
         delete req.body._id
         delete req.body.email
         delete req.body.password
@@ -87,7 +85,7 @@ module.exports = function (app) {
                     next()
                 }
             })
-        } else if (req.path == '/' || req.path == '/login' || req.path == '/register') {
+        } else if (req.path == '/' || req.path == '/login' || req.path == '/register' || ((params?.anonymous || {})[req.method] || []).find(x => x == req.path)) {
             next()
 
         } else {

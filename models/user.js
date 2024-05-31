@@ -1,2 +1,2 @@
 
-module.exports = db => db.model("User", require("./userSchema"))
+module.exports = (db, userschema) => db.model("User", require("./userSchema")(userschema))

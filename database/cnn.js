@@ -31,6 +31,17 @@ module.exports = function (schema) {
             }
             return result
         },
+        unsetDocument: async function (id, key) {
+            const ca = schema(db)
+            var query = { '_id': id }
+            var value = {}
+            value[key] = 1
+            var result = await ca.findOneAndUpdate(query, { "$unset": value })
+            if (result == null) {
+                throw new Error(ca.modelName + " was not changed")
+            }
+            return result
+        },
         deleteEntity: async function (id) {
             const ca = schema(db)
             if (!ObjectId.isValid(id)) throw Error(ca.modelName + " id is not provider or incorrect")
@@ -50,7 +61,7 @@ module.exports = function (schema) {
         },
         getEntities: async function (filter, options = null) {
             const ca = schema(db)
-            return options ? ca.paginate(filter, options) : ca.find(filter, fields, range)
+            return options ? ca.paginate(filter, options) : ca.find(filter, options?.fields, options?.range)
         }
     }
 

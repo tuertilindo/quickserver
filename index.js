@@ -1,3 +1,4 @@
+const { ObjectId } = require('mongodb')
 exports.init = (params, load) => {
     var express = require("express"),
         app = express(),
@@ -10,15 +11,17 @@ exports.init = (params, load) => {
     const pk = process.env.PRIVATE_KEY || params.privatekey
     if (!pk) throw Error("The Private key is not set, please add it to enviorement: PRIVATE_KEY ")
     app.set('privateKey', pk)
-
-    require("./configs/config")(app, params.loadAuth)
-
-
+    require("./configs/config")(app, params)
     if (load) load(app)
+
+
+
     const port = params.port || 8080
     server.listen(port, function () {
         console.log("Quickserver running on http://localhost:" + port)
     })
 }
-
+exports.helper = {
+    checkId: (id) => ObjectId.isValid(id)
+}
 
