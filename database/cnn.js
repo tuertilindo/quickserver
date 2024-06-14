@@ -2,6 +2,11 @@ const db = require("./mongo")
 var ObjectId = require('mongoose').Types.ObjectId;
 module.exports = function (schema) {
     return {
+        checkEntity: async function (filter) {
+            const ca = schema(db)
+            var item = await ca.findOne(filter)
+            return item
+        },
         getEntity: async function (filter) {
             const ca = schema(db)
             var item = await ca.findOne(filter)
@@ -50,6 +55,7 @@ module.exports = function (schema) {
             if (!deleted.acknowledged || deleted.deletedCount == 0) {
                 throw new Error(ca.modelName + " was not deleted")
             }
+            return deleted
         },
         deleteEntities: async function (query) {
             const ca = schema(db)

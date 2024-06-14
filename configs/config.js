@@ -15,7 +15,8 @@ module.exports = (app, params) => {
     bodyParser = require("body-parser")
     app.use(bodyParser.urlencoded({ extended: true }))
     app.use(bodyParser.json())
-    require("../routes/auth")(app, params)
+
     //set Custom CRUD
-    require("./loadRoutes")(app)
+    require("./loadRoutes")(app, params)
+    require("../routes/auth")(app, params)
 } 

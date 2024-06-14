@@ -1,14 +1,11 @@
-var users = require("../models/user.js")
 var merge = require("../helper/merge.js")
-const db = require("../database/mongo")
 const jwt = require('jsonwebtoken')
 module.exports = function (app, params) {
-    const us = users(db, params.userSchema)
     authenticate = async function (req, res) {
-
-        us.findOne({
-            email: req.body.email,
-        }).exec().then(user => {
+        try {
+            const user = await req.cnn['User'].checkEntity({
+                email: req.body.email,
+            })
             if (user && user.verifyPassword(req.body.password)) {
                 var me = user.toJSON()
                 jwt.sign(me, app.get('privateKey'), function (err, token) {
@@ -22,36 +19,31 @@ module.exports = function (app, params) {
             } else {
                 return res.sendStatus(401)
             }
-        }).catch(err => {
-            res.status(401).send({ message: err.message })
-
-        })
+        } catch (error) {
+            return res.status(401).send({ message: error.message })
+        }
     }
 
-    register = function (req, res) {
-        us.findOne({
-            email: req.body.email,
-        }).exec().then(user => {
+    register = async function (req, res) {
+        try {
+            const user = await req.cnn['User'].checkEntity({
+                email: req.body.email,
+            })
             if (!user) {
-                return us.create({
+                const newUser = await req.cnn['User'].saveEntity({
                     ...req.body,
                     role: "Guest",
                     name: req.body.name || 'Unknow'
-                }).then(newuser => newuser.save()
-                    .then(saveduser => {
-
-                        res.send(saveduser)
-                    }))
-
-
+                })
+                return res.json(newUser)
             } else {
 
                 throw new Error("The email provided already exists")
             }
-        }).catch(err => {
-            res.status(400).send({ message: err.message })
+        } catch (error) {
+            return res.status(400).send({ message: error.message })
 
-        })
+        }
 
     }
     updateMe = function (req, res) {
@@ -59,7 +51,7 @@ module.exports = function (app, params) {
         delete req.body.email
         delete req.body.password
         const user = merge(req.user, req.body)
-        us.updateOne({ _id: user.id }, user).then(u => res.send(user))
+        return res.send(req.cnn['User'].saveEntity(user))
     }
 
     profile = (req, res) => {
@@ -85,7 +77,7 @@ module.exports = function (app, params) {
                     next()
                 }
             })
-        } else if (req.path == '/' || req.path == '/login' || req.path == '/register' || ((params?.anonymous || {})[req.method] || []).find(x => x == req.path)) {
+        } else if (req.path == '/' || req.path == '/login' || ((params?.anonymous || {})[req.method] || []).find(x => x == req.path)) {
             next()
 
         } else {
