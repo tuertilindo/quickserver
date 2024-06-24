@@ -1,4 +1,5 @@
 const { ObjectId } = require('mongodb')
+const multer = require('multer');
 exports.init = (params, load) => {
     var express = require("express"),
         app = express(),
@@ -14,14 +15,14 @@ exports.init = (params, load) => {
     require("./configs/config")(app, params)
     if (load) load(app)
 
-
-
     const port = params.port || 8080
     server.listen(port, function () {
         console.log("Quickserver running on http://localhost:" + port)
     })
 }
 exports.helper = {
-    checkId: (id) => ObjectId.isValid(id)
+    checkId: (id) => ObjectId.isValid(id),
+    generateId: (id) => new ObjectId(id.padStart(24, "0")),
+    processFile: (field) => multer({ storage: multer.memoryStorage() }).single(field)
 }
 

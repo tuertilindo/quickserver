@@ -2,6 +2,16 @@ const db = require("./mongo")
 var ObjectId = require('mongoose').Types.ObjectId;
 module.exports = function (schema) {
     return {
+        create: async function (entity){
+            const ca = schema(db)
+            
+            try {
+                const person = await ca.create(entity)
+                person.save()
+            } catch (error) {
+                throw error
+            }
+        },
         checkEntity: async function (filter) {
             const ca = schema(db)
             var item = await ca.findOne(filter)
