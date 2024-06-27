@@ -6,7 +6,8 @@ module.exports = function (app, params) {
             const user = await req.cnn['User'].checkEntity({
                 email: req.body.email,
             })
-            if (user && user.verifyPassword(req.body.password)) {
+            const valid = await user.verifyPassword(req.body.password)
+            if (user && valid) {
                 var me = user.toJSON()
                 jwt.sign(me, app.get('privateKey'), function (err, token) {
                     if (!err) {
@@ -54,37 +55,19 @@ module.exports = function (app, params) {
         return res.send(req.cnn['User'].saveEntity(user))
     }
 
-    profile = (req, res) => {
-        return res.send(req.user)
-    }
-    app.all("*", (req, res, next) => {
+    profile = (req, res) =>
 
-        var bearerHeader = req.headers['authorization']
-        var token = null
-        if (bearerHeader) {
-            const bearer = bearerHeader.split(' ')
-            token = bearer[1]
-        } else {
-            token = req.query['token']
-        }
-        if (token) {
+        app.all("*", (req, res, next) => {
+            if (req.user) {
+                next()
+            } else if (req.path == '/' || req.path == '/login' || ((params?.anonymous || {})[req.method] || []).find(x => x == req.path)) {
+                next()
 
-            jwt.verify(token, app.get('privateKey'), (err, decoded) => {
-                if (err) {
-                    return res.status(401).json({ mensaje: 'Invalid token' })
-                } else {
-                    req.user = decoded
-                    next()
-                }
-            })
-        } else if (req.path == '/' || req.path == '/login' || ((params?.anonymous || {})[req.method] || []).find(x => x == req.path)) {
-            next()
-
-        } else {
-            // Forbidden
-            res.sendStatus(403)
-        }
-    })
+            } else {
+                // Forbidden
+                res.sendStatus(403)
+            }
+        })
     app.post("/login", authenticate)
     app.post("/register", register)
     app.post("/updateme", updateMe)

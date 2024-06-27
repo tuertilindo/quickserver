@@ -23,6 +23,7 @@ exports.init = (params, load) => {
 exports.helper = {
     checkId: (id) => ObjectId.isValid(id),
     generateId: (id) => new ObjectId(id.padStart(24, "0")),
-    processFile: (field) => multer({ storage: multer.memoryStorage() }).single(field)
+    processFile: (field) => multer({ storage: multer.memoryStorage() }).single(field),
+    model: (name, schema) => require('mongoose').model(name, schema)
 }
 
