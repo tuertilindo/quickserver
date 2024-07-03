@@ -6,19 +6,21 @@ module.exports = function (app, params) {
             const user = await req.cnn['User'].checkEntity({
                 email: req.body.email,
             })
+            if (!user) throw Error("Incorrect user account")
+            if (user.blocked) throw Error("User account blocked")
             const valid = await user.verifyPassword(req.body.password)
             if (user && valid) {
                 var me = user.toJSON()
                 jwt.sign(me, app.get('privateKey'), function (err, token) {
                     if (!err) {
-                        res.json({ ...me, token: token })
+                        return res.json({ ...me, token: token })
                     } else {
                         throw Error("Error parsing user")
                     }
                 })
 
             } else {
-                return res.sendStatus(401)
+                throw Error("Login failed!")
             }
         } catch (error) {
             return res.status(401).send({ message: error.message })
