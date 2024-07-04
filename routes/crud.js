@@ -18,7 +18,8 @@ module.exports = function (app, name, template) {
 
             const { filter = "{}", sort, range = "[0, 9]" } = request.query
             const [a, b] = JSON.parse(range)
-            const paginate = a + b > 0 ? { offset: a, limit: b } : null
+            const sorted = sort ? JSON.parse(sort) : undefined
+            const paginate = a + b > 0 ? { offset: a, limit: b, sort: sorted } : null
             const query = { ...JSON.parse(filter), ...(request.filter || {}) }
             var result = await request.cnn[name].getEntities(query, paginate)
 
