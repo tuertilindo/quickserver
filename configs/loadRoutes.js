@@ -12,11 +12,11 @@ module.exports = (app, params) => {
         app.all("*", (req, res, next) => {
             if (req.cnn == null) req.cnn = {}
             req.cnn = cnns
+            // Load User
+            req.cnn['User'] = req.userCnn
             next()
         })
-        // Load User
-        const umod = userSchema(params.userSchema)
-        cnns['User'] = cnn(db => db.model('User', umod))
+
 
         folders(resolve(process.env.MODELS_PATH), (template, file) => {
             var name = file.substring(0, file.indexOf('.'))
