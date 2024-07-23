@@ -4,7 +4,7 @@ var mongoose = require("mongoose"),
 var mongoosePaginate = require('mongoose-paginate')
 module.exports = us => {
 	var userSchema = new Schema({
-		role: { type: String, enum: ["Admin", "Guest"] },
+		role: { type: String, enum: ["Admin", "Guest", "Member", "Moderator", "Root"] },
 		...us,
 		name: {
 			type: String,

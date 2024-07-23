@@ -2,9 +2,17 @@ const db = require("./mongo")
 var ObjectId = require('mongoose').Types.ObjectId;
 module.exports = function (schema) {
     return {
-        create: async function (entity){
+        queryBuilder: function () {
             const ca = schema(db)
-            
+            return ca.find();
+        },
+        aggregate: function (stages) {
+            const ca = schema(db)
+            return ca.aggregate(stages);
+        },
+        create: async function (entity) {
+            const ca = schema(db)
+
             try {
                 const person = await ca.create(entity)
                 person.save()
@@ -43,6 +51,14 @@ module.exports = function (schema) {
             var result = await ca.findOneAndUpdate(query, entity, { upsert: true })
             if (result == null) {
                 throw new Error(ca.modelName + " was not changed")
+            }
+            return result
+        },
+        updateEntities: async function (query, body) {
+            const ca = schema(db)
+            var result = await ca.updateMany(query, body, { upsert: false })
+            if (result == null) {
+                throw new Error("Items were not changed")
             }
             return result
         },
