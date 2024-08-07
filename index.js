@@ -19,6 +19,7 @@ exports.init = (params, load) => {
     server.listen(port, function () {
         console.log("Quickserver running on http://localhost:" + port)
     })
+    return app
 }
 exports.helper = {
     checkId: (id) => ObjectId.isValid(id),
