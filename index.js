@@ -16,9 +16,12 @@ exports.init = (params, load) => {
     if (load) load(app)
 
     const port = params.port || 8080
-    server.listen(port, function () {
-        console.log("Quickserver running on http://localhost:" + port)
-    })
+    if (!params.noserve) {
+        server.listen(port, function () {
+            console.log("Quickserver running on http://localhost:" + port)
+        })
+    }
+
     return app
 }
 exports.helper = {
