@@ -115,4 +115,5 @@ module.exports = function (app, name, template) {
         }
 
     })
+    console.info(name + " CRUD created")
 }
