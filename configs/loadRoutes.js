@@ -5,7 +5,6 @@ const builder = require("../models/schemaBuilder");
 const folders = require("../helper/loadFolder")
 const cnn = require("../database/cnn")
 const combine = require("../helper/combine")
-var userSchema = require("../models/userSchema")
 module.exports = (app, params) => {
     if (process.env.MODELS_PATH) {
         const cnns = { helper: { combine } }
@@ -16,18 +15,31 @@ module.exports = (app, params) => {
             req.cnn['User'] = req.userCnn
             next()
         })
+        if (params.models) {
+            for (const name of Object.keys(params.models || {})) {
+                const template = params.models[name]
+                if (name.toLowerCase() !== 'user') {
+                    const mod = builder(template)
+                    cnns[name] = cnn(db => db.model(name, mod))
+                }
 
 
-        folders(resolve(process.env.MODELS_PATH), (template, file) => {
-            var name = file.substring(0, file.indexOf('.'))
-            if (name.toLowerCase() !== 'user') {
-                const mod = builder(template)
-                cnns[name] = cnn(db => db.model(name, mod))
+                crud(app, name, template)
             }
+        } else {
+            folders(resolve(process.env.MODELS_PATH), (template, file) => {
+                var name = file.substring(0, file.indexOf('.'))
+                if (name.toLowerCase() !== 'user') {
+                    const mod = builder(template)
+                    cnns[name] = cnn(db => db.model(name, mod))
+                }
 
 
-            crud(app, name, template)
-        });
+                crud(app, name, template)
+            });
+        }
+
+
 
     }
 
