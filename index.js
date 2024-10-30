@@ -3,8 +3,7 @@ const multer = require('multer');
 exports.init = (params, load) => {
     var express = require("express"),
         app = express(),
-        http = require("http"),
-        server = http.createServer(app)
+        http = require("http")
     //Database
     if (!process.env.DATABASE_URL) process.env["DATABASE_URL"] = params.dbConnectionString
     // Set the config
@@ -20,7 +19,7 @@ exports.init = (params, load) => {
     const port = params.port || 8080
     if (!params.noserve) {
         console.log('starting server...')
-        server.listen(port, function () {
+        app.listen(port, function () {
             console.log("Quickserver running on http://localhost:" + port)
         })
     } else {
